@@ -1,0 +1,38 @@
+#
+# Open Watcom makefile to create OS/2 (eComStation) executable file.
+#
+# Andrey Vasilkin, 2014
+# digi@os2.snc.ru
+#
+
+# My path for zlib.lib
+LIBPATH =..\..\lib\OS2
+
+# My path for zlib.h
+INCPATH =..\..\h
+
+CFLAGS = -i=$(%WATCOM)\H\OS2;$(%WATCOM)\H;$(INCPATH) -bt=os2 -q -d0 -w2 -bw
+CFLAGS += -dSYS_LITTLE_ENDIAN
+
+# Debug OS/2 related code
+# CFLAGS += -dDEBUG_FILE="os2sys.dbg"
+
+SRCS = bank.cpp file.cpp engine.cpp mixer.cpp resource.cpp parts.cpp vm.cpp
+SRCS += serializer.cpp sfxplayer.cpp staticres.cpp util.cpp video.cpp main.cpp
+SRCS += sysImpOS2.cpp
+
+OBJS = $(SRCS:.cpp=.obj)
+
+LIBS = mmpm2.lib zlib.lib
+
+raw.exe: $(OBJS)
+  wlink SYS os2v2_pm libpath $(LIBPATH) lib {$(LIBS)} op q file {$(OBJS:.obj=)} name $* op map=$*
+
+.cpp.obj:
+  wpp386 $(CFLAGS) $<
+
+clean: .SYMBOLIC
+  @if exist *.obj del *.obj
+  @if exist raw.map del raw.map
+  @if exist raw.exe del raw.exe
+  @if exist raw.dbg del raw.dbg
